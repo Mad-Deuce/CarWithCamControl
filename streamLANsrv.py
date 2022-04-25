@@ -14,45 +14,39 @@ while True:
         print('Could not open video device')
     else:
         while True:
-            #capture = cv.VideoCapture(0)
-            # cv.WaitKey(100)
-            
+          
             ret, frame = capture.read()
-            cv.waitKey(1000)
+            cv.waitKey(100)
             gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-            size=(160,120)
-            out = cv.resize(gray,size)
-            
+            #size=(160,120)
+            out = cv.resize(gray,(160,120))
             print(out.size)
-            #connection.send(out.size)
-            frameLen=out.size
-            byteFrameLen=frameLen.to_bytes(4, 'little', signed=False)
-            connection.send(byteFrameLen)
-            # >>>i_num = 123
-            # >>>b_num = i_num.to_bytes(2, 'little', signed=False)
-            # >>>b_num
-            # b'{\x00'
 
+            flnm="capture.jpeg"
+        
+            cv.imwrite(flnm, out)
+            with open(flnm, "rb") as f:
+                # f = open (flnm, "rb")
 
-            cv.imwrite("capture.png", out)
-            f = open ("capture.png", "rb")
+                file_stats = os.stat(flnm)
+                frameLen=file_stats.st_size
+                print(frameLen)
 
+                byteFrameLen=frameLen.to_bytes(4, 'little', signed=False)
+                
+                connection.send(byteFrameLen)
 
-            #with open("capture.png", "ab") as mifile:
-
-            #f=out.tobytes()
-            #f = open (out, "rb")
-            #cv.imshow('frame',out)
-            midata = f.read(1024)
-            while midata:
-                connection.send(midata)
                 midata = f.read(1024)
-            #cv.waitKey(50)
-            #connection.send(f'endframe'.encode('utf-8'))
-            #os.remove(f)
-            print("endfile")
+                while midata:
+                    connection.send(midata)
+                    midata = f.read(1024)
+
+                print("endfile")
+
             f.close()
-            os.remove("capture.png")
+            #break
+            os.remove(flnm)
+        #break
             
 
             
