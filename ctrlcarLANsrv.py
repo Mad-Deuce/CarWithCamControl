@@ -6,7 +6,7 @@ import RPi.GPIO as GPIO     #импорт библиотеки для работ
 #import keyboard     #импорт библиотеки для работы с клавой
 import time                 #импорт библиотеки для ожидания
 
-import cv2 as cv
+#import cv2 as cv
 
 import socket
 
@@ -128,20 +128,20 @@ def CarStop():
 ########################################################################## 
 while True:
     connection, address = serversocket.accept()
-    capture = cv.VideoCapture(0)
+    #capture = cv.VideoCapture(0)
 
     while True:
         buf = connection.recv(64)
 
-        ret, frame = capture.read()
-        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        size=(160,120)
-        out = cv.resize(gray,size)
+        #ret, frame = capture.read()
+        #gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        #size=(160,120)
+        #out = cv.resize(gray,size)
         
-        midata = out.read(1024)
-        while midata:
-            connection.send(out)
-            midata = out.read(1024)
+        #midata = out.read(1024)
+        #while midata:
+        #    connection.send(out)
+        #    midata = out.read(1024)
             
             #sock.sendto(midata, addr)
             #midata = mifile.read(1024)
@@ -155,6 +155,7 @@ while True:
             #print(buf.decode('utf-8'))
             if buf.decode('utf-8') == 'w':
                 CarForward()
+                print("w was pressed")
             elif buf.decode('utf-8') == 's':
                 CarBackward()
             elif buf.decode('utf-8') == 'a':         
