@@ -1,11 +1,11 @@
 [Unit]
-Description=Control Car Service
+Description=USBCamStream Service
 After=multi-user.target
 Conflicts=getty@tty1.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /usr/bin/ctrlcarLANsrv.py
+ExecStart=/usr/bin/python3 /usr/bin/streamLANsrv.py
 Restart=on-failure
 RestartSec=30s
 StandardInput=tty-force
