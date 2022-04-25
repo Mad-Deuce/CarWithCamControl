@@ -6,6 +6,7 @@ serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serversocket.bind(('192.168.1.237', 8090))
 serversocket.listen(1) # become a server socket, maximum 5 connections
 
+
 capture = cv.VideoCapture(-1)
 while True:
     connection, address = serversocket.accept()
@@ -16,7 +17,7 @@ while True:
         while True:
           
             ret, frame = capture.read()
-            cv.waitKey(100)
+            cv.waitKey(50)
             gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
             #size=(160,120)
             out = cv.resize(gray,(160,120))
