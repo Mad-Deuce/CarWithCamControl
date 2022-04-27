@@ -16,76 +16,39 @@ def test(x):
     if x.event_type == 'down': 
         if x.name == 'w':
             clientsocket.send(f'w'.encode('utf-8'))
-            # print(x.name)
         elif x.name == 's':
             clientsocket.send(f's'.encode('utf-8'))
-            # print("s was pressed")
         elif x.name == 'a':
             clientsocket.send(f'a'.encode('utf-8'))
-            # print("a was pressed")
         elif x.name == 'd':
             clientsocket.send(f'd'.encode('utf-8'))
-            # print("d was pressed")
         elif x.name == 'p':
-            # print("p was pressed")
             clientsocket.send(f'stopthecar'.encode('utf-8'))
             clientsocket.send(f'disconnect'.encode('utf-8'))
-            #capture.release()
-            #cv.destroyAllWindows()
+        elif x.name == 'z':
+            clientsocket.send(f'z'.encode('utf-8'))
+        elif x.name == 'x':
+            clientsocket.send(f'x'.encode('utf-8'))
+        elif x.name == 'c':
+            clientsocket.send(f'c'.encode('utf-8'))
+        elif x.name == 'v':
+            clientsocket.send(f'v'.encode('utf-8'))
         else:
             clientsocket.send(f'stopthecar'.encode('utf-8'))
-            # print(x.name)
-            # print("fdfdfdf")
+    elif x.event_type == 'up':
+        if x.name == 'r':
+            clientsocket.send(f'r'.encode('utf-8'))
+        elif x.name == 'f':
+            clientsocket.send(f'f'.encode('utf-8'))
+        else:
+            clientsocket.send(f'stopthecar'.encode('utf-8'))
     else:
         clientsocket.send(f'stopthecar'.encode('utf-8'))
         # print("fdfdfdf")
 ########################################################################## 
 
 ########################################################################## 
-#capture = cv.VideoCapture(0)
-#capture = clientsocket.recv(64)
-#with open("mi2.png", "ab") as mifile:
-#    data = clientsocket.recv(1024)
-#    while data:
-#        mifile.write(data)
-#        data = clientsocket.recv(1024)
-    #out=mifile.read()
-#keyboard.add_hotkey("w", lambda: clientsocket.send(f'w'.encode('utf-8')))
-#keyboard.add_hotkey("w", lambda: print("w was pressed"))
-#keyboard.add_hotkey("w", lambda: test)
-#keyboard.add_hotkey("w", test)
-#keyboard.add_hotkey("w", test,args=keyboard.hook_key("w"))
-#keyboard.add_hotkey("w", test,args=(keyboard.KeyboardEvent("down",28,"enter")))
-# while(True):
-#     if keyboard.is_pressed("w"):
-#         print("w was pressed")
-#         clientsocket.send(f'w'.encode('utf-8'))
-#     # if keyboard.is_pressed('s'):
-#     #     clientsocket.send(f's'.encode('utf-8'))
-#     # if keyboard.is_pressed('a'):
-#     #     clientsocket.send(f'a'.encode('utf-8'))
-#     # if keyboard.is_pressed('d'):
-#     #     clientsocket.send(f'd'.encode('utf-8'))
-#     if keyboard.is_pressed('p'):
-#         clientsocket.send(f'disconnect'.encode('utf-8'))
-#         clientsocket.close()
-    # clientsocket.send(f'stopthecar'.encode('utf-8'))
-    #ret, frame = capture.read()
-    #ret, frame = capture
-    #gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    #size=(160,120)
-    #out = cv.resize(gray,size)
-# with open("mi2.png", "ab") as mifile:
-#     data = clientsocket.recv(1024)
-#     while data:
-#         mifile.write(data)
-#         data = clientsocket.recv(1024)
-    # cv.imshow('frame',mifile)
-#    if cv.waitKey(1) & 0xFF == ord('q'):
-#        break
-#+capture.release()
-#+cv.destroyAllWindows()
-    #keyboard.add_hotkey("w", lambda: print("ctrl+alt+j was pressed"))
+
 keyboard.hook(test)
 keyboard.wait("p")
 clientsocket.close()

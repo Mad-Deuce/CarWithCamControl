@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import cv2 as cv
 import socket
 import os
