@@ -9,8 +9,6 @@ import time                 #импорт библиотеки для ожида
 from array import *         #импорт библиотеки для массивов
 from threading import Thread
 
-#import cv2 as cv
-
 import socket
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,22 +32,26 @@ RRB=37              #заднее правое "назад" (Rear-Right-Backward
 RLF=36              #заднее левое "вперед" (Rear-Left-Forward)
 RLB=38              #заднее левое "назад" (Rear-Left-Backward)
 
-GPIO.setup(FRF, GPIO.OUT)    #объявление порта как выход-переднее правое
-GPIO.setup(FRB, GPIO.OUT)    #объявление порта как выход-переднее правое
+PWM=12              #выход ШИМ
 
-GPIO.setup(FLF, GPIO.OUT)    #объявление порта как выход-переднее правое
-GPIO.setup(FLB, GPIO.OUT)    #объявление порта как выход-переднее правое
+GPIO.setup(FRF, GPIO.OUT)           #объявление порта как выход
+GPIO.setup(FRB, GPIO.OUT)           #объявление порта как выход
 
-GPIO.setup(RRF, GPIO.OUT)    #объявление порта как выход-переднее правое
-GPIO.setup(RRB, GPIO.OUT)    #объявление порта как выход-переднее правое
+GPIO.setup(FLF, GPIO.OUT)           #объявление порта как выход
+GPIO.setup(FLB, GPIO.OUT)           #объявление порта как выход
 
-GPIO.setup(RLF, GPIO.OUT)    #объявление порта как выход-переднее правое
-GPIO.setup(RLB, GPIO.OUT)    #объявление порта как выход-переднее правое 
+GPIO.setup(RRF, GPIO.OUT)           #объявление порта как выход
+GPIO.setup(RRB, GPIO.OUT)           #объявление порта как выход
+
+GPIO.setup(RLF, GPIO.OUT)           #объявление порта как выход
+GPIO.setup(RLB, GPIO.OUT)           #объявление порта как выход
+
+GPIO.setup(PWM, GPIO.OUT)           #объявление порта как выход
+
+pwmOutput_0 = GPIO.PWM(PWM, 100)    #Создаем объект pwmOutput_0 для работы с каналами PWM
 ########################################################################## 
-# >>> bin(88) '0b1011000' >>> int('0b1011000', 2) 88 
-# >>> >>> a=int('01100000', 2) >>> b=int('00100110', 2) >>> bin(a & b) '0b100000' 
-# >>> bin(a | b) '0b1100110' >>> bin(a ^ b) '0b1000110' 
-lock = threading.Lock()
+ 
+# lock = threading.Lock()
 
 TRMSi=3
 TRMS=array('i',[int('00000000',2),
@@ -59,60 +61,43 @@ TRMS=array('i',[int('00000000',2),
                 int('00110011',2),
                 int('11001100',2)
                 ])
-speedFi=0                                           #
-SpeedWPM=0
-SpeedT=array('i',[  int('00000000',2),
-                    int('00000001',2),
-                    int('00000011',2),
-                    int('00000111',2),
-                    int('00001111',2),
-                    int('00011111',2),
-                    int('00111111',2),
-                    int('01111111',2),
-                    int('11111111',2)
-                    ])
-speedF=array('f',[0.5,0.35,0.2,0.1,0.00])     #переменная скорости ВПЕРЕД
-speedB=speedF[1]                                    #переменная скорости НАЗАД
-speedLR=speedF[0]                                   #переменная скорости поворотов
+speedPWMi=0               #
+speedPWM=array('i',[30,40,50,75,100])     #переменная скорости ВПЕРЕД
 
-
+pwmi=-1
+pwmduty=30
 ########################################################################## 
 def SpeedTakt():
-    global SpeedWPM
+    global pwmduty
+    global pwmi
     while True:
-        # SpeedT=array('i',[  int('00000000',2),
-        #                     int('00000001',2),
-        #                     int('00000011',2),
-        #                     int('00000111',2),
-        #                     int('00001111',2),
-        #                     int('00011111',2),
-        #                     int('00111111',2),
-        #                     int('01111111',2),
-        #                     int('11111111',2)
-        #                     ])
-        for i in range (8):
-            # lock.acquire()
-            SpeedWPM=(SpeedT[speedFi]>>i) & 0b00000001
-            # lock.release()
-            #print('WPM-')
-            #print(SpeedWPM)
-            #time.sleep(0.001)
+        if pwmduty<31:
+            pwmduty=30
+        elif pwmduty>99:
+            pwmduty=99
+
+        pwmduty=pwmduty+1*(pwmi)    
+        time.sleep(0.1)
+        print(pwmduty)
 ##########################################################################
 th = Thread(target=SpeedTakt, daemon=True)
 th.start()
 ##########################################################################  
 def CarForward():
+    
+    pwmOutput_0.start(pwmduty)
+
     defMask=0b01010101
     defMask=defMask & TRMS[TRMSi]
 
-    gpioout7=((defMask & 0b10000000)>>7) & SpeedWPM
-    gpioout6=((defMask & 0b01000000)>>6) & SpeedWPM
-    gpioout5=((defMask & 0b00100000)>>5) & SpeedWPM
-    gpioout4=((defMask & 0b00010000)>>4) & SpeedWPM
-    gpioout3=((defMask & 0b00001000)>>3) & SpeedWPM
-    gpioout2=((defMask & 0b00000100)>>2) & SpeedWPM
-    gpioout1=((defMask & 0b00000010)>>1) & SpeedWPM
-    gpioout0=((defMask & 0b00000001)>>0) & SpeedWPM
+    gpioout7=((defMask & 0b10000000)>>7)
+    gpioout6=((defMask & 0b01000000)>>6)
+    gpioout5=((defMask & 0b00100000)>>5)
+    gpioout4=((defMask & 0b00010000)>>4)
+    gpioout3=((defMask & 0b00001000)>>3)
+    gpioout2=((defMask & 0b00000100)>>2)
+    gpioout1=((defMask & 0b00000010)>>1)
+    gpioout0=((defMask & 0b00000001)>>0)
 
     GPIO.output(FRF, gpioout7)
     GPIO.output(FRB, gpioout6 )
@@ -125,24 +110,11 @@ def CarForward():
     
     GPIO.output(RLF, gpioout1)
     GPIO.output(RLB, gpioout0)
-
-    # GPIO.output(FRF, 0)
-    # GPIO.output(FRB, 1)
-    
-    # GPIO.output(FLF, 0)
-    # GPIO.output(FLB, 1)
-    
-    # GPIO.output(RRF, 0)
-    # GPIO.output(RRB, 1)
-    
-    # GPIO.output(RLF, 0)
-    # GPIO.output(RLB, 1)
-    # if speedFi<4:
-    #     CarStop()
-    #     time.sleep(speedF[speedFi])
-        
+       
 ##########################################################################  
 def CarBackward():
+    pwmOutput_0.start(speedPWM[2])
+
     defMask=0b10101010
     defMask=defMask & TRMS[TRMSi]
 
@@ -167,20 +139,10 @@ def CarBackward():
     GPIO.output(RLF, gpioout1)
     GPIO.output(RLB, gpioout0)
 
-    # GPIO.output(FRF, 1)
-    # GPIO.output(FRB, 0)
-    
-    # GPIO.output(FLF, 1)
-    # GPIO.output(FLB, 0)
-    
-    # GPIO.output(RRF, 1)
-    # GPIO.output(RRB, 0)
-    
-    # GPIO.output(RLF, 1)
-    # GPIO.output(RLB, 0)
-    # time.sleep(speedB)
 ##########################################################################
 def CarLeft():
+    pwmOutput_0.start(pwmduty)
+
     defMask=0b01100110
     if TRMSi==1:
         defMask=defMask & TRMS[TRMSi+3]
@@ -210,20 +172,10 @@ def CarLeft():
     GPIO.output(RLF, gpioout1)
     GPIO.output(RLB, gpioout0)
 
-    # GPIO.output(FRF, 0)
-    # GPIO.output(FRB, 1)
-    
-    # GPIO.output(FLF, 1)
-    # GPIO.output(FLB, 0)
-    
-    # GPIO.output(RRF, 0)
-    # GPIO.output(RRB, 1)
-    
-    # GPIO.output(RLF, 1)
-    # GPIO.output(RLB, 0)
-    # time.sleep(speedLR)
 ##########################################################################
 def CarRight():
+    pwmOutput_0.start(pwmduty)
+
     defMask=0b10011001
     if TRMSi==1:
         defMask=defMask & TRMS[TRMSi+3]
@@ -253,20 +205,10 @@ def CarRight():
     GPIO.output(RLF, gpioout1)
     GPIO.output(RLB, gpioout0)
 
-    # GPIO.output(FRF, 1)
-    # GPIO.output(FRB, 0)
-    
-    # GPIO.output(FLF, 0)
-    # GPIO.output(FLB, 1)
-    
-    # GPIO.output(RRF, 1)
-    # GPIO.output(RRB, 0)
-    
-    # GPIO.output(RLF, 0)
-    # GPIO.output(RLB, 1)
-    # time.sleep(speedLR)
 ##########################################################################
 def CarStop(): 
+    # pwmOutput_0.stop()
+
     GPIO.output(FRF, 0)
     GPIO.output(FRB, 0)
     
@@ -279,43 +221,6 @@ def CarStop():
     GPIO.output(RLF, 0)
     GPIO.output(RLB, 0)
 ########################################################################## 
-# NON Working
-def CarAction():
-    controlSym=''
-    while True:
-        if controlSym=='w':
-            defMask=0b01010101                  #Активные выхода для движения вперед
-        elif controlSym=='s':
-            defMask=0b10101010                  #Активные выхода для движения назад
-        elif controlSym=='a':
-            defMask=0b10101010                  #Активные выхода для движения назад
-        elif controlSym=='d':
-            defMask=0b10101010                  #Активные выхода для движения назад
-        else:
-            defMask=0b00000000                  #Активные выхода для движения назад
-        
-        defMask=defMask & TRMS[TRMSi]
-
-        gpioout7=(defMask & 0b10000000)>>7
-        gpioout6=(defMask & 0b01000000)>>6
-        gpioout5=(defMask & 0b00100000)>>5
-        gpioout4=(defMask & 0b00010000)>>4
-        gpioout3=(defMask & 0b00001000)>>3
-        gpioout2=(defMask & 0b00000100)>>2
-        gpioout1=(defMask & 0b00000010)>>1
-        gpioout0=(defMask & 0b00000001)>>0
-
-        GPIO.output(FRF, gpioout7)
-        GPIO.output(FRB, gpioout6)
-        
-        GPIO.output(FLF, gpioout5)
-        GPIO.output(FLB, gpioout4)
-        
-        GPIO.output(RRF, gpioout3)
-        GPIO.output(RRB, gpioout2)
-        
-        GPIO.output(RLF, gpioout1)
-        GPIO.output(RLB, gpioout0)
 
 ########################################################################## 
 while True:
@@ -326,26 +231,31 @@ while True:
         #time.sleep(1)
         if len(buf) > 0:
             if buf.decode('utf-8') == 'w':
+                pwmi=1
                 CarForward()
             elif buf.decode('utf-8') == 's':
                 CarBackward()
-            elif buf.decode('utf-8') == 'a':         
+            elif buf.decode('utf-8') == 'a':
+                pwmi=1         
                 CarLeft()
             elif buf.decode('utf-8') == 'd':
+                pwmi=1
                 CarRight()
             elif buf.decode('utf-8') == 'stopthecar':
+                pwmi=-3
                 CarStop()
             elif buf.decode('utf-8') == 'disconnect':
+                pwmOutput_0.stop()
                 CarStop()
                 break
             elif buf.decode('utf-8') == 'r':
-                if speedFi<8:
-                    speedFi=speedFi+1
-                    print(speedFi)
+                if speedPWMi<4:
+                    speedPWMi=speedPWMi+1
+                    print(speedPWMi)
             elif buf.decode('utf-8') == 'f':
-                if speedFi>0:
-                    speedFi=speedFi-1
-                    print(speedFi)
+                if speedPWMi>0:
+                    speedPWMi=speedPWMi-1
+                    print(speedPWMi)
             elif buf.decode('utf-8') == 'z':
                 TRMSi=0
                 print(TRMSi)
@@ -359,6 +269,8 @@ while True:
                 TRMSi=3
                 print(TRMSi)
             else:
+                pwmi=-3
                 CarStop()        
         else:
+            pwmi=-3
             CarStop()
